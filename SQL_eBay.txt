@@ -1,0 +1,446 @@
+
+CREATE DATABASE DB_eBay;
+
+CREATE TABLE Customers(
+CustomerID INT NOT NULL IDENTITY(1,1) UNIQUE,
+	FirstName VARCHAR(20) NOT NULL,
+	LastName VARCHAR(20) NOT NULL,
+    Email VARCHAR(60) UNIQUE,
+	Phone INT NOT NULL,
+	Country VARCHAR(20) NOT NULL,
+	City VARCHAR(20) NOT NULL,
+	CAddress VARCHAR(20) NOT NULL,
+    CONSTRAINT PK_Customer PRIMARY KEY (CustomerID)
+);
+
+
+
+CREATE TABLE ShoppingCarts(
+ShoppingCartID INT NOT NULL IDENTITY(1,1),
+	CustomerID INT NOT NULL,
+	Quantity INT NOT NULL,
+CONSTRAINT PK_ShoppingCart PRIMARY KEY (ShoppingCartID),
+CONSTRAINT FK_ShoppingCarts_Customers_CustomerID FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+
+
+CREATE TABLE Products(
+ProductID INT NOT NULL IDENTITY(1,1),
+	CustomerID INT NOT NULL,
+	ProductName VARCHAR(20) UNIQUE NOT NULL,
+	ProductCondition VARCHAR(20) NOT NULL,
+	ProductDescription TEXT,
+	ProductPrice FLOAT(2) NOT NULL,
+	ShippingPrice FLOAT(2) NOT NULL,
+	ImportCharges FLOAT(2) NOT NULL,
+CONSTRAINT PK_Product PRIMARY KEY (ProductID),
+CONSTRAINT FK_Products_Customers_CustomerID FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+
+
+
+CREATE TABLE CartItems(
+CartItemID INT NOT NULL IDENTITY(1,1),
+ShoppingCartID INT NOT NULL,
+ProductID INT NOT NULL,
+	Subtotal FLOAT(2),
+CONSTRAINT PK_CartItemm PRIMARY KEY (CartItemID),
+CONSTRAINT FK_CartItems_ShoppingCarts_ShoppingCartID FOREIGN KEY (ShoppingCartID) REFERENCES ShoppingCarts(ShoppingCartID),
+CONSTRAINT FK_CartItems_Products_ProductID FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+
+
+CREATE TABLE SubCategoriesHasProducts(
+SubCategoriesHasProductID INT NOT NULL IDENTITY(1,1),
+	SubCategoryID INT NOT NULL,
+	ProductID INT NOT NULL,
+CONSTRAINT PK_SubCategoriesHasProduct PRIMARY KEY (SubCategoriesHasProductID),
+CONSTRAINT FK_SubCategoriesHasProducts_Products_ProductID FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
+CONSTRAINT FK_SubCategoriesHasProducts_SubCategories_SubCategoryID FOREIGN KEY (SubCategoryID) REFERENCES SubCategories(SubCategoryID)
+);
+
+
+
+
+CREATE TABLE SubCategories(
+SubCategoryID INT NOT NULL IDENTITY(1,1),
+	CategoryID INT NOT NULL,
+	SubCategoryName VARCHAR(20) NOT NULL,
+CONSTRAINT PK_SubCategory PRIMARY KEY (SubCategoryID),
+CONSTRAINT FK_SubCategories_Categories_CategoryID FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+);
+
+
+
+CREATE TABLE Categories(
+CategoryID INT NOT NULL IDENTITY(1,1),
+	CategoryName VARCHAR(20) NOT NULL,
+CONSTRAINT PK_CartItem PRIMARY KEY (CategoryID)
+);
+
+
+
+CREATE TABLE Payments(
+PaymentID INT NOT NULL IDENTITY(1,1),
+	PaymentMethod VARCHAR(10) NOT NULL,
+	PaymentDate DATETIME DEFAULT(getdate()),
+CONSTRAINT PK_Payment PRIMARY KEY (PaymentID),
+CONSTRAINT Pay_Meethod CHECK(PaymentMethod IS NULL OR (PaymentMethod IN('Card','PayPal','GooglePay')))
+);
+
+
+
+CREATE TABLE Orders(
+OrderID INT NOT NULL IDENTITY(1,1),
+	CustomerID INT NOT NULL,
+	ShoppingCartID INT NOT NULL,
+	PaymentID INT NOT NULL,
+	Quantity INT NOT NULL,
+	MakeOrderDate DATETIME DEFAULT(GETDATE())
+CONSTRAINT PK_Order PRIMARY KEY (OrderID),
+CONSTRAINT FK_Orders_Customers_CustomerID FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID),
+CONSTRAINT FK_Orders_ShoppingCarts_ShoppingCartID FOREIGN KEY (ShoppingCartID) REFERENCES ShoppingCarts(ShoppingCartID),
+CONSTRAINT FK_Orders_Payment_PaymentID FOREIGN KEY (PaymentID) REFERENCES Payments(PaymentID)
+);
+
+
+
+CREATE TABLE OrderItems(
+OrderItemID INT NOT NULL IDENTITY(1,1),
+OrderID INT NOT NULL,
+ProductID INT NOT NULL,
+Subtotal FLOAT(2),
+CONSTRAINT PK_OrderItem PRIMARY KEY (OrderItemID),
+CONSTRAINT FK_OrderItems_Orders_OrderID FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
+CONSTRAINT FK_OrderItems_Products_ProductID FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
+
+
+
+
+
+
+--------------Customer
+
+INSERT INTO Customers(FirstName,LastName,Email,Phone,Country,City,CAddress)
+VALUES('Daniela','Gluhova','dany@gmail.com','894545152','Bulgaria','Haskovo','sss 79')
+INSERT INTO Customers(FirstName,LastName,Email,Phone,Country,City,CAddress)
+VALUES('Desislava','Hristova','desih@gmail.com','894489668','Bulgaria','Haskovo','dsad 45')
+INSERT INTO Customers(FirstName,LastName,Email,Phone,Country,City,CAddress)
+VALUES('Emil','Gorenov','emogorenov@gmail.com','894521152','Bulgaria','Sofia','hshac 12')
+INSERT INTO Customers(FirstName,LastName,Email,Phone,Country,City,CAddress)
+VALUES('Michel','Mims','michelm@gmail.com','894456352','Portugal','Lisbon','dsafa 2')
+INSERT INTO Customers(FirstName,LastName,Email,Phone,Country,City,CAddress)
+VALUES('Santiago','Santos','santiagoss@gmail.com','894545152','Portugal','Santa Cruz','fafds 36')
+INSERT INTO Customers(FirstName,LastName,Email,Phone,Country,City,CAddress)
+VALUES('Gunnar','Einarsson','gunnarein@gmail.com','894545665','Iceland','Selfoss','fdsvf 5')
+INSERT INTO Customers(FirstName,LastName,Email,Phone,Country,City,CAddress)
+VALUES('David','Smith','davids@gmail.com','894125485','Australia','Geraldton','hreihg 65')
+INSERT INTO Customers(FirstName,LastName,Email,Phone,Country,City,CAddress)
+VALUES('Ivailo','Andonov','ivchoa@gmail.com','894212512','Bulgaria','Plovdiv','fasfa 19')
+
+--SELECT * FROM Customers
+
+--------------ShoppingCarts
+INSERT INTO ShoppingCarts(CustomerID,Quantity)
+VALUES(1,2)
+INSERT INTO ShoppingCarts(CustomerID,Quantity)
+VALUES(1,1)
+INSERT INTO ShoppingCarts(CustomerID,Quantity)
+VALUES(2,2)
+INSERT INTO ShoppingCarts(CustomerID,Quantity)
+VALUES(2,1)
+INSERT INTO ShoppingCarts(CustomerID,Quantity)
+VALUES(3,2)
+INSERT INTO ShoppingCarts(CustomerID,Quantity)
+VALUES(3,1)
+INSERT INTO ShoppingCarts(CustomerID,Quantity)
+VALUES(4,3)
+INSERT INTO ShoppingCarts(CustomerID,Quantity)
+VALUES(5,1)
+INSERT INTO ShoppingCarts(CustomerID,Quantity)
+VALUES(6,4)
+
+--SELECT * FROM ShoppingCarts
+
+--------------Products
+INSERT INTO Products(CustomerID,ProductCondition,ProductDescription,ProductPrice,ShippingPrice,ImportCharges)
+VALUES(7,'Asterix Comic','Brand New','Serie:Asterix und Obelix,Deutschland',12.00,5.00,2.00)
+INSERT INTO Products(CustomerID,ProductName,ProductCondition,ProductDescription,ProductPrice,ShippingPrice,ImportCharges)
+VALUES(7,'SCOOBY-DOO Comic','Like New','Comic Book,Publisher:Marvel Comics,1978',6.99,29.00,1.00)
+INSERT INTO Products(CustomerID,ProductName,ProductCondition,ProductDescription,ProductPrice,ShippingPrice,ImportCharges)
+VALUES(8,'Google - Pixel 3','New','64GB Memory Cell Phone (Unlocked)',179.95,29.92,22.00)
+INSERT INTO Products(CustomerID,ProductName,ProductCondition,ProductDescription,ProductPrice,ShippingPrice,ImportCharges)
+VALUES(8,'Realme GT Neo 2','New','8 128 Black Smartphone',447.85,11.20,42.30)
+INSERT INTO Products(CustomerID,ProductName,ProductCondition,ProductDescription,ProductPrice,ShippingPrice,ImportCharges)
+VALUES(8,'Bluetooth Watch','New','Waterproof,Phone Heart Rate Monitor For iphone IOS Android',38.42,0.00,3.20)
+INSERT INTO Products(CustomerID,ProductName,ProductCondition,ProductDescription,ProductPrice,ShippingPrice,ImportCharges)
+VALUES(7,'Jack&Jones Jeans','New with tags','Slim Fit Stretch Denim',29.99,17.99,2.33)
+INSERT INTO Products(CustomerID,ProductName,ProductCondition,ProductDescription,ProductPrice,ShippingPrice,ImportCharges)
+VALUES(7,'Womens Jacket','New with tags','Harlow Hoodied Coat Full Zip',74.90,30.60,5.33)
+INSERT INTO Products(CustomerID,ProductName,ProductCondition,ProductDescription,ProductPrice,ShippingPrice,ImportCharges)
+VALUES(8,'Keychain GPS','New','Anti-Los Motorcycle Locator',18.90,2.00,4.12)
+INSERT INTO Products(CustomerID,ProductName,ProductCondition,ProductDescription,ProductPrice,ShippingPrice,ImportCharges)
+VALUES(8,'Cycling Computer','New','Bluetooth LCDDisplay Speedometer Waterproof',50.77,13.46,6.74)
+
+--SELECT * FROM Products
+
+--------------CartItems
+INSERT INTO CartItems(ShoppingCartID,ProductID)
+VALUES(10,1)
+INSERT INTO CartItems(ShoppingCartID,ProductID)
+VALUES(10,2)
+INSERT INTO CartItems(ShoppingCartID,ProductID)
+VALUES(11,3)
+INSERT INTO CartItems(ShoppingCartID,ProductID)
+VALUES(11,5)
+INSERT INTO CartItems(ShoppingCartID,ProductID)
+VALUES(12,7)
+INSERT INTO CartItems(ShoppingCartID,ProductID)
+VALUES(15,10)
+INSERT INTO CartItems(ShoppingCartID,ProductID)
+VALUES(13,11)
+INSERT INTO CartItems(ShoppingCartID,ProductID)
+VALUES(14,12)
+INSERT INTO CartItems(ShoppingCartID,ProductID)
+VALUES(16,13)
+
+--SELECT*FROM CartItems
+
+--------------SubCategoriesHasProducts
+INSERT INTO SubCategoriesHasProducts(SubCategoryID,ProductID)
+VALUES(1,1)
+INSERT INTO SubCategoriesHasProducts(SubCategoryID,ProductID)
+VALUES(2,2)
+INSERT INTO SubCategoriesHasProducts(SubCategoryID,ProductID)
+VALUES(2,3)
+INSERT INTO SubCategoriesHasProducts(SubCategoryID,ProductID)
+VALUES(5,5)
+INSERT INTO SubCategoriesHasProducts(SubCategoryID,ProductID)
+VALUES(6,7)
+INSERT INTO SubCategoriesHasProducts(SubCategoryID,ProductID)
+VALUES(6,10)
+INSERT INTO SubCategoriesHasProducts(SubCategoryID,ProductID)
+VALUES(6,11)
+INSERT INTO SubCategoriesHasProducts(SubCategoryID,ProductID)
+VALUES(4,12)
+INSERT INTO SubCategoriesHasProducts(SubCategoryID,ProductID)
+VALUES(3,13)
+
+--SELECT * FROM SubCategoriesHasProducts
+
+--------------SubCategories
+INSERT INTO SubCategories(CategoryID,SubCategoryName)
+VALUES(1,'Action Figures')
+INSERT INTO SubCategories(CategoryID,SubCategoryName)
+VALUES(3,'Cell Phones')
+INSERT INTO SubCategories(CategoryID,SubCategoryName)
+VALUES(3,'Smart Watches')
+INSERT INTO SubCategories(CategoryID,SubCategoryName)
+VALUES(2,'Woman Fashion')
+INSERT INTO SubCategories(CategoryID,SubCategoryName)
+VALUES(2,'Men Fashion')
+INSERT INTO SubCategories(CategoryID,SubCategoryName)
+VALUES(4,'Car Parts')
+
+--SELECT * FROM SubCategories
+
+
+--------------Categories
+INSERT INTO Categories(CategoryName)
+VALUES('Collectibles')
+INSERT INTO Categories(CategoryName)
+VALUES('Clothes')
+INSERT INTO Categories(CategoryName)
+VALUES('Electronics')
+INSERT INTO Categories(CategoryName)
+VALUES('Auto Parts')
+
+--SELECT*FROM Categories
+
+--------------Payments
+INSERT INTO Payments(PaymentMethod)
+VALUES('Card')
+INSERT INTO Payments(PaymentMethod)
+VALUES('Card')
+INSERT INTO Payments(PaymentMethod)
+VALUES('PayPal')
+INSERT INTO Payments(PaymentMethod)
+VALUES('PayPal')
+INSERT INTO Payments(PaymentMethod)
+VALUES('Card')
+INSERT INTO Payments(PaymentMethod)
+VALUES('GooglePay')
+
+--SELECT*FROM Payments
+
+--------------Orders
+INSERT INTO Orders(CustomerID,ShoppingCartID,PaymentID,Quantity)
+VALUES(1,10,1,5)
+INSERT INTO Orders(CustomerID,ShoppingCartID,PaymentID,Quantity)
+VALUES(2,12,2,2)
+INSERT INTO Orders(CustomerID,ShoppingCartID,PaymentID,Quantity)
+VALUES(3,14,3,2)
+INSERT INTO Orders(CustomerID,ShoppingCartID,PaymentID,Quantity)
+VALUES(4,16,4,4)
+INSERT INTO Orders(CustomerID,ShoppingCartID,PaymentID,Quantity)
+VALUES(5,17,5,2)
+INSERT INTO Orders(CustomerID,ShoppingCartID,PaymentID,Quantity)
+VALUES(6,18,6,1)
+
+--SELECT * FROM Orders
+
+--------------OrderItems
+INSERT INTO OrderItems(OrderID,ProductID)
+VALUES(1,1)
+INSERT INTO OrderItems(OrderID,ProductID)
+VALUES(2,1)
+INSERT INTO OrderItems(OrderID,ProductID)
+VALUES(3,2)
+INSERT INTO OrderItems(OrderID,ProductID)
+VALUES(4,2)
+INSERT INTO OrderItems(OrderID,ProductID)
+VALUES(5,11)
+INSERT INTO OrderItems(OrderID,ProductID)
+VALUES(6,10)
+INSERT INTO OrderItems(OrderID,ProductID)
+VALUES(4,11)
+INSERT INTO OrderItems(OrderID,ProductID)
+VALUES(3,5)
+INSERT INTO OrderItems(OrderID,ProductID)
+VALUES(1,13)
+INSERT INTO OrderItems(OrderID,ProductID)
+VALUES(1,3)
+
+
+--SELECT* FROM OrderItems
+
+
+--Съхранена процедура, която извежда продуктите (по низходящ ред) от най-скъп до най-евтин:
+ 
+ ALTER PROCEDURE procProductList
+    AS
+    BEGIN
+        SELECT 
+            Products.ProductName, 
+            Products.ProductPrice
+        FROM 
+            Products
+        ORDER BY 
+            ProductPrice DESC
+    END;
+
+	EXEC procProductList
+	
+--Функция, която извежда броя на продуктите, чиято цена<30
+
+SELECT
+   COUNT(ProductPrice) productCount
+FROM
+    Products
+WHERE
+    ProductPrice < 30
+	
+
+-- Функция, която извежда името на клиента и броя поръчки които е направил
+
+SELECT 
+    Customers.FirstName, 
+    SUM(quantity) order_count
+FROM 
+    Orders
+	join Customers 
+	on Customers.CustomerID=Orders.CustomerID
+GROUP BY
+    Customers.FirstName
+ORDER BY 
+    order_count DESC;
+	
+
+--TRIGGER
+--Ще съдържа резултатите от активирането на тригера
+CREATE TABLE ProductAudits (
+    ChangeID INT IDENTITY(1,1) PRIMARY KEY,
+    ProductID INT NOT NULL,
+	CustomerID INT NOT NULL,
+    ProductName VARCHAR(20) NOT NULL,
+	ProductCondition VARCHAR(20) NOT NULL,
+	ProductDescription TEXT,
+    ProductPrice float(2) NOT NULL,
+	ShippingPrice float(2) NOT NULL,
+	ImportCharges float(2) NOT NULL,
+	updated_at DATETIME NOT NULL,
+	operation CHAR(3) NOT NULL,
+	CHECK(operation = 'INS' or operation = 'DEL')
+	);
+
+
+
+
+CREATE TRIGGER trg_product_audit
+ON Products
+AFTER INSERT, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO ProductAudits(
+	ProductID,
+	CustomerID,
+	ProductName,
+	ProductCondition,
+    ProductPrice,
+	ShippingPrice,
+	ImportCharges,
+	updated_at,
+	operation
+	)
+	SELECT
+    i.ProductID,
+	CustomerID,
+	ProductName,
+	ProductCondition,
+    i.ProductPrice,
+	ShippingPrice,
+	ImportCharges,
+    GETDATE(),
+    'INS'
+	FROM inserted i
+	UNION ALL
+	SELECT
+	d.ProductID,
+	CustomerID,
+	ProductName,
+	ProductCondition,
+    d.ProductPrice,
+	ShippingPrice,
+	ImportCharges,
+    GETDATE(),
+    'DEL'
+	FROM deleted d;
+	END
+
+
+INSERT INTO Products(
+CustomerID,
+ProductName,
+ProductCondition,
+ProductPrice,
+ShippingPrice,
+ImportCharges)
+VALUES(2,
+		'Another Product',
+		'Brand New',
+		29.45,
+		5.31,
+		2.41);
+
+
+--Ако insert-а даде грешка trigger-а няма да позволи да се направят изменения
+
+SELECT * FROM ProductAudits
+
+DELETE FROM Products WHERE ProductID=14;
+
